@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .container {
+            width: 800px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container"></div>
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script>
+        function BarrelLayout($ct) {
+            this.$ct = $ct;
+            this.loadImg();
+            this.imgList = [];
+            //console.log(imgList)
+        }
+        BarrelLayout.prototype = {
+            loadImg: function () {
+                var self = this
+                var imgs = self.getImgUrls(100);
+                //console.log(imgs)
+                for (var i = 0; i < imgs.length; i++) {
+                    var img = new Image();
+                    //console.log(img)
+                    img.src = imgs[i];
+                    img.onload = function () {
+                        var imgInfo = {
+                            target: this,
+                            width: (this.width / this.height) * 200,
+                            height: 200
+                        };
+                        self.render(imgInfo);
+                        //console.log(imgInfo)
+                    }
+                }
+            },
+
+            render: function (imgInfo) {
+                var wrapWidth = this.$ct.width();
+                var imgWidth = 0;
+                var newRowHeight = 0;
+                var lastImgInfo = imgInfo;
+                this.imgList.push(imgInfo);
+                for (var i = 0; i < this.imgList.length; i++) {
+                    imgWidth += this.imgList[i].width;
+                }
+                if (imgWidth > wrapWidth) {
+                    this.imgList.pop();
+                    imgWidth = imgWidth - lastImgInfo.width;
+                    newRowHeight = 200 * wrapWidth / imgWidth;
+                    //console.log(this.imgList)
+                    //this.imgList.pop();
+                    //console.log(this)
+                    this.layout(newRowHeight);
+                    this.imgList = [];
+                    this.imgList.push(imgInfo);
+                }
+            },
+
+            layout: function (newRowHeight) {
+                var $Ct = $("<div class = 'row'></div>");
+                //console.log(this.imgList)
+                $.each(this.imgList, function (idx, imgInfo) {
+                    var $Img = $(imgInfo.target)
+                    $Img.height(newRowHeight);
+                    //console.log($Img)
+                    $Ct.append($Img);
+                })
+                this.$ct.append($Ct);
+            },
+
+            getImgUrls: function (num) {
+                var color, width, height, urls = [];
+                for (var i = 0; i < num; i++) {
+                    color = Math.random().toString(16).substring(2, 8);
+                    width = Math.floor(Math.random() * 100 + 50);
+                    height = Math.floor(Math.random() * 30 + 50);
+                    urls.push("http://placehold.it/" + width + "x" + height + "/" + color + "/fff");
+                }
+                return urls;
+            }
+        }
+
+        var wrap = new BarrelLayout($('.container'));
+    </script>
+</body>
+
+</html>
